@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BStUsphere — Baku State University Student App</title>
+  <meta name="description" content="Download BStUsphere for Android: find BStU lecture halls, manage class schedules, share study materials, and join student study groups." />
+  <style>
+    :root {
+      --cobalt: #124071;
+      --cobalt-dark: #0B2A4B;
+      --cobalt-soft: #D6E4FF;
+      --amber: #B4690E;
+      --amber-soft: #FFE5C2;
+      --bg: #FBF9F5;
+      --surface: #FFFFFF;
+      --surface-warm: #F4F1EA;
+      --ink: #161D26;
+      --muted: #535E6B;
+      --outline: #E2DDD3;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 20px 56px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--cobalt);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.5px;
+      box-shadow: 0 6px 18px rgba(18, 64, 113, 0.22);
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--amber-soft);
+      color: #5A3100;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--cobalt) 0%, var(--cobalt-dark) 100%);
+      color: #fff;
+      border-radius: 26px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 45px rgba(18, 64, 113, 0.2);
+      margin-bottom: 28px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4.5vw, 42px);
+      line-height: 1.14;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 620px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #F59E0B;
+      color: #1F1200;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 15px 24px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-primary:hover { transform: translateY(-1px); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .release-meta {
+      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--outline);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .card-badge {
+      display: inline-block;
+      background: var(--cobalt-soft);
+      color: var(--cobalt-dark);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 {
+      font-size: 17px;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .steps {
+      background: var(--surface-warm);
+      border: 1px solid var(--outline);
+      border-radius: 22px;
+      padding: 24px;
+    }
+
+    .steps h2 {
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+
+    .step-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .step-item {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--outline);
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--cobalt);
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status-toast {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 12px;
+      color: #FDE68A;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a class="brand" href="#">
+        <div class="brand-badge">BS</div>
+        <div>
+          <div class="brand-title">BStUsphere</div>
+          <div class="brand-sub">Baku State University Student Hub</div>
+        </div>
+      </a>
+      <span class="pill">Android 7.0+ (APK)</span>
+    </header>
+
+    <section class="hero">
+      <h1>Your BStU campus, in your pocket.</h1>
+      <p>
+        Find lecture halls across Main Building and Academic Buildings 1–3, organize your weekly class
+        schedule, share notes and whiteboard photos, and collaborate in student study groups.
+      </p>
+      <div class="cta-row">
+        <a id="download-btn" class="btn-primary" href="#install-steps">
+          Download BStUsphere APK
+        </a>
+        <button id="share-btn" class="btn-secondary" type="button">
+          Copy / Share Link
+        </button>
+        <a id="releases-link" class="btn-secondary" href="#" style="display:none;">
+          All Releases
+        </a>
+        <span id="copy-status" class="status-toast"></span>
+      </div>
+      <div id="release-meta" class="release-meta">
+        Checking latest release build…
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <span class="card-badge">Campus Finder</span>
+        <h3>Lecture Hall Locator</h3>
+        <p>Search rooms by building, floor, or faculty with step-by-step walking directions.</p>
+      </article>
+      <article class="card">
+        <span class="card-badge">Timetable</span>
+        <h3>Weekly Schedules</h3>
+        <p>Track lectures, seminars, and labs, and jump directly from any class to its room.</p>
+      </article>
+      <article class="card">
+        <span class="card-badge">Materials</span>
+        <h3>Notes &amp; File Sharing</h3>
+        <p>Post thoughts, study files, whiteboard photos, and links with course replies.</p>
+      </article>
+      <article class="card">
+        <span class="card-badge">Collaboration</span>
+        <h3>Student Study Groups</h3>
+        <p>Create public or private course groups and chat in real time with classmates.</p>
+      </article>
+    </section>
+
+    <section id="install-steps" class="steps">
+      <h2>How to Install on Android (3 Quick Steps)</h2>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <strong>Tap Download APK</strong>
+          <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">
+            Save <code>BStUsphere.apk</code> to your Android phone.
+          </p>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <strong>Open &amp; Allow Install</strong>
+          <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">
+            Tap the downloaded file in Notifications or Files and allow your browser to install apps if asked.
+          </p>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <strong>Sign In with Google</strong>
+          <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">
+            Sign in once to sync your BStU schedule, shared materials, and study groups across devices.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      BStUsphere • Built for Baku State University Students
+    </footer>
+  </div>
+
+  <script>
+    // Optional: set "owner/repo" manually if using a custom domain instead of github.io
+    const MANUAL_GITHUB_REPO = "";
+
+    function detectGitHubRepo() {
+      if (MANUAL_GITHUB_REPO) return MANUAL_GITHUB_REPO;
+      const host = window.location.hostname || "";
+      if (host.endsWith(".github.io")) {
+        const owner = host.replace(".github.io", "");
+        const parts = window.location.pathname.split("/").filter(Boolean);
+        if (owner && parts.length > 0) {
+          return owner + "/" + parts[0];
+        }
+      }
+      return "";
+    }
+
+    async function loadLatestRelease() {
+      const repo = detectGitHubRepo();
+      const metaEl = document.getElementById("release-meta");
+      const btnEl = document.getElementById("download-btn");
+      const relEl = document.getElementById("releases-link");
+
+      if (!repo) {
+        metaEl.textContent = "Host this docs/ folder on GitHub Pages to auto-link your latest APK release.";
+        return;
+      }
+
+      const releasesUrl = "https://github.com/" + repo + "/releases";
+      relEl.href = releasesUrl;
+      relEl.style.display = "inline-flex";
+
+      try {
+        const res = await fetch("https://api.github.com/repos/" + repo + "/releases/latest");
+        if (!res.ok) throw new Error("No published release yet");
+        const data = await res.json();
+        const apk = (data.assets || []).find(a => a.name && a.name.toLowerCase().endsWith(".apk"));
+
+        if (apk) {
+          btnEl.href = apk.browser_download_url;
+          const mb = (apk.size / (1024 * 1024)).toFixed(1);
+          const date = data.published_at ? new Date(data.published_at).toLocaleDateString() : "";
+          metaEl.textContent = `Latest: ${data.tag_name || "Release"} • ${mb} MB${date ? " • Updated " + date : ""}`;
+        } else {
+          btnEl.href = releasesUrl;
+          metaEl.textContent = "Release found — tap Download to open GitHub Releases.";
+        }
+      } catch (err) {
+        btnEl.href = releasesUrl;
+        metaEl.textContent = "Tap Download to view GitHub Releases once the first APK workflow finishes.";
+      }
+    }
+
+    document.getElementById("share-btn").addEventListener("click", async () => {
+      const url = window.location.href;
+      const status = document.getElementById("copy-status");
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "BStUsphere — BStU Student App",
+            text: "Download BStUsphere for BStU lecture halls, class schedules, and study groups:",
+            url
+          });
+          return;
+        } catch (_) {}
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        status.textContent = "Link copied!";
+        setTimeout(() => { status.textContent = ""; }, 2500);
+      } catch (_) {
+        status.textContent = url;
+      }
+    });
+
+    loadLatestRelease();
+  </script>
+</body>
+</html>

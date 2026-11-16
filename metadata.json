@@ -1,0 +1,6 @@
+{
+  "name": "BStUsphere",
+  "description": "BStU campus companion for finding lecture halls, managing class schedules, sharing study materials, and connecting in student groups.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

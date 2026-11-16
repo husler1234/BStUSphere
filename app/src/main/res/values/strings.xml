@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">BStUsphere</string>
+    <string name="tagline_campus">Baku State University Student Hub</string>
+    <string name="auth_headline">Your BStU campus, connected.</string>
+    <string name="auth_subtitle">Find lecture halls in seconds, track your weekly class schedule, share notes and files, and collaborate in study groups.</string>
+    <string name="auth_sign_in_google">Continue with Google</string>
+    <string name="auth_signing_in">Signing in to BStUsphere…</string>
+    <string name="auth_feature_halls">Lecture Hall &amp; Building Finder</string>
+    <string name="auth_feature_schedule">Personal Weekly Timetable</string>
+    <string name="auth_feature_materials">Share Thoughts, Notes &amp; Files</string>
+    <string name="auth_feature_groups">Study Groups &amp; Live Chat</string>
+
+    <string name="nav_schedule">Schedule</string>
+    <string name="nav_halls">Halls</string>
+    <string name="nav_sphere">Sphere</string>
+    <string name="nav_groups">Groups</string>
+
+    <string name="action_add_class">Add Class</string>
+    <string name="action_add_hall">Add Room</string>
+    <string name="action_new_post">Share</string>
+    <string name="action_new_group">New Group</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_join">Join Group</string>
+    <string name="action_leave">Leave</string>
+    <string name="action_open_chat">Open Chat</string>
+    <string name="action_sign_out">Sign Out</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_attach_photo">Attach Photo</string>
+    <string name="action_attach_file">Attach Document</string>
+
+    <string name="cd_profile_avatar">Student profile and settings</string>
+    <string name="cd_campus_hero">Baku State University campus illustration</string>
+    <string name="cd_lecture_hall_banner">BStU lecture hall illustration</string>
+    <string name="cd_back">Navigate back</string>
+    <string name="cd_send_message">Send message</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="cd_delete_item">Delete item</string>
+    <string name="cd_attachment_preview">Attached whiteboard or study note photo</string>
+
+    <string name="profile_title">Student Profile</string>
+    <string name="error_generic_load">Unable to load campus data right now.</string>
+    <string name="empty_schedule_title">No classes scheduled yet</string>
+    <string name="empty_schedule_body">Add your BStU lectures, seminars, and labs to see where your next hall is located.</string>
+    <string name="empty_posts_title">Start the BStU conversation</string>
+    <string name="empty_posts_body">Share lecture notes, whiteboard photos, study links, or ask your classmates a question.</string>
+    <string name="empty_groups_title">No study groups yet</string>
+    <string name="empty_groups_body">Create a study group for your course or join a public BStU circle to chat and share materials.</string>
+
+    <string name="default_download_url" translatable="false"></string>
+    <string name="action_share_app">Share BStUsphere</string>
+    <string name="cd_share_app">Share BStUsphere download link</string>
+    <string name="share_dialog_title">Share BStUsphere</string>
+    <string name="share_dialog_subtitle">Invite BStU classmates to scan or open your website download link.</string>
+    <string name="share_copy_link">Copy Link</string>
+    <string name="share_send_link">Share Link</string>
+</resources>

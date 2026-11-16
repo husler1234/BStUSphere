@@ -1,0 +1,352 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Reusable Hardened Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTimestamp(ts) {
+      return ts is timestamp && ts <= request.time;
+    }
+
+    function isOptionalString(data, key, maxLen) {
+      return !(key in data) || data[key] == null || (data[key] is string && data[key].size() <= maxLen);
+    }
+
+    function isOptionalInt(data, key, minVal, maxVal) {
+      return !(key in data) || data[key] == null || (data[key] is int && data[key] >= minVal && data[key] <= maxVal);
+    }
+
+    // 3. Entity Validation Blueprints
+    function isValidUserProfile(data) {
+      return data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80 &&
+             isOptionalString(data, 'email', 150) &&
+             data.faculty is string && data.faculty.size() <= 80 &&
+             data.academicGroup is string && data.academicGroup.size() <= 40 &&
+             data.studyYear is int && data.studyYear >= 1 && data.studyYear <= 6 &&
+             isOptionalString(data, 'bio', 300) &&
+             isOptionalString(data, 'photoUrl', 500) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidSchedule(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.courseName is string && data.courseName.size() >= 1 && data.courseName.size() <= 100 &&
+             isOptionalString(data, 'courseCode', 24) &&
+             isOptionalString(data, 'instructor', 80) &&
+             data.building is string && data.building.size() >= 1 && data.building.size() <= 60 &&
+             data.roomNumber is string && data.roomNumber.size() >= 1 && data.roomNumber.size() <= 30 &&
+             isOptionalString(data, 'hallId', 128) &&
+             data.dayOfWeek is int && data.dayOfWeek >= 1 && data.dayOfWeek <= 7 &&
+             data.startTime is string && data.startTime.size() >= 4 && data.startTime.size() <= 10 &&
+             data.endTime is string && data.endTime.size() >= 4 && data.endTime.size() <= 10 &&
+             data.classType in ['Lecture', 'Seminar', 'Lab', 'Tutorial'] &&
+             isOptionalString(data, 'notes', 300) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidLectureHall(data) {
+      return data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128 &&
+             data.visibility == 'campus' &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.building is string && data.building.size() >= 1 && data.building.size() <= 60 &&
+             data.floor is string && data.floor.size() >= 1 && data.floor.size() <= 30 &&
+             data.roomNumber is string && data.roomNumber.size() >= 1 && data.roomNumber.size() <= 30 &&
+             isOptionalString(data, 'faculty', 80) &&
+             data.capacity is int && data.capacity >= 1 && data.capacity <= 1000 &&
+             isOptionalString(data, 'directions', 400) &&
+             (!('amenities' in data) || (
+               data.amenities is list &&
+               data.amenities.size() <= 10 &&
+               (data.amenities.size() == 0 || data.amenities[0] is string)
+             )) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidPost(data) {
+      return data.authorId is string && data.authorId.size() >= 1 && data.authorId.size() <= 128 &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80 &&
+             isOptionalString(data, 'authorFaculty', 80) &&
+             data.visibility == 'campus' &&
+             data.category in ['thought', 'material', 'question', 'announcement'] &&
+             isOptionalString(data, 'subject', 80) &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 140 &&
+             data.body is string && data.body.size() >= 1 && data.body.size() <= 2000 &&
+             isOptionalString(data, 'attachmentName', 180) &&
+             isOptionalString(data, 'attachmentMimeType', 100) &&
+             isOptionalInt(data, 'attachmentSizeBytes', 0, 104857600) &&
+             isOptionalString(data, 'attachmentTextPreview', 4000) &&
+             isOptionalString(data, 'attachmentImageBase64', 180000) &&
+             isOptionalString(data, 'resourceUrl', 500) &&
+             data.commentsCount is int && data.commentsCount >= 0 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidComment(data) {
+      return data.postId is string && isValidId(data.postId) &&
+             data.authorId is string && data.authorId.size() >= 1 && data.authorId.size() <= 128 &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80 &&
+             isOptionalString(data, 'authorFaculty', 80) &&
+             data.visibility == 'campus' &&
+             data.body is string && data.body.size() >= 1 && data.body.size() <= 1000 &&
+             isValidTimestamp(data.createdAt);
+    }
+
+    function isValidGroup(data) {
+      return data.name is string && data.name.size() >= 2 && data.name.size() <= 80 &&
+             isOptionalString(data, 'subject', 80) &&
+             isOptionalString(data, 'faculty', 80) &&
+             isOptionalString(data, 'description', 500) &&
+             isOptionalString(data, 'meetingLocation', 100) &&
+             data.visibility in ['public', 'private'] &&
+             data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128 &&
+             data.creatorName is string && data.creatorName.size() >= 1 && data.creatorName.size() <= 80 &&
+             data.memberIds is list && data.memberIds.size() >= 1 && data.memberIds.size() <= 50 &&
+             data.memberIds[0] is string &&
+             data.memberCount is int && data.memberCount >= 1 && data.memberCount <= 50 &&
+             isOptionalString(data, 'lastMessagePreview', 140) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidGroupMessage(data) {
+      return data.groupId is string && isValidId(data.groupId) &&
+             data.authorId is string && data.authorId.size() >= 1 && data.authorId.size() <= 128 &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80 &&
+             data.body is string && data.body.size() >= 1 && data.body.size() <= 1500 &&
+             data.visibility in ['public', 'private'] &&
+             data.memberIds is list && data.memberIds.size() >= 1 && data.memberIds.size() <= 50 &&
+             data.memberIds[0] is string &&
+             isOptionalString(data, 'attachmentName', 180) &&
+             isOptionalString(data, 'attachmentMimeType', 100) &&
+             isOptionalString(data, 'attachmentImageBase64', 180000) &&
+             isOptionalString(data, 'resourceUrl', 500) &&
+             isValidTimestamp(data.createdAt);
+    }
+
+    // 4. Collection Match Blocks
+    match /users/{userId} {
+      allow get, delete: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+      allow list: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().uid == request.auth.uid &&
+                       incoming().keys().hasAll(['uid', 'displayName', 'faculty', 'academicGroup', 'studyYear', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['uid', 'displayName', 'email', 'faculty', 'academicGroup', 'studyYear', 'bio', 'photoUrl', 'createdAt', 'updatedAt']);
+
+      allow update: if isSignedIn() &&
+                       isValidId(userId) &&
+                       request.auth.uid == userId &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().uid == existing().uid &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'faculty', 'academicGroup', 'studyYear', 'bio', 'photoUrl', 'updatedAt']);
+
+      match /schedules/{scheduleId} {
+        allow get, delete: if isSignedIn() && isValidId(userId) && isValidId(scheduleId) && request.auth.uid == userId;
+        allow list: if isSignedIn() && isValidId(userId) && request.auth.uid == userId;
+
+        allow create: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(scheduleId) &&
+                         request.auth.uid == userId &&
+                         isValidSchedule(incoming()) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'courseName', 'building', 'roomNumber', 'dayOfWeek', 'startTime', 'endTime', 'classType', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['userId', 'courseName', 'courseCode', 'instructor', 'building', 'roomNumber', 'hallId', 'dayOfWeek', 'startTime', 'endTime', 'classType', 'notes', 'createdAt', 'updatedAt']);
+
+        allow update: if isSignedIn() &&
+                         isValidId(userId) &&
+                         isValidId(scheduleId) &&
+                         request.auth.uid == userId &&
+                         isValidSchedule(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['courseName', 'courseCode', 'instructor', 'building', 'roomNumber', 'hallId', 'dayOfWeek', 'startTime', 'endTime', 'classType', 'notes', 'updatedAt']);
+      }
+    }
+
+    match /lectureHalls/{hallId} {
+      allow get: if isSignedIn() && isValidId(hallId) && (existing().visibility == 'campus' || existing().createdBy == request.auth.uid);
+      allow list: if isSignedIn() && (existing().visibility == 'campus' || existing().createdBy == request.auth.uid);
+
+      allow create: if isSignedIn() &&
+                       isValidId(hallId) &&
+                       isValidLectureHall(incoming()) &&
+                       incoming().createdBy == request.auth.uid &&
+                       incoming().keys().hasAll(['createdBy', 'visibility', 'name', 'building', 'floor', 'roomNumber', 'capacity', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['createdBy', 'visibility', 'name', 'building', 'floor', 'roomNumber', 'faculty', 'capacity', 'directions', 'amenities', 'createdAt', 'updatedAt']);
+
+      allow update: if isSignedIn() &&
+                       isValidId(hallId) &&
+                       isValidLectureHall(incoming()) &&
+                       existing().createdBy == request.auth.uid &&
+                       incoming().createdBy == existing().createdBy &&
+                       incoming().visibility == existing().visibility &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['name', 'building', 'floor', 'roomNumber', 'faculty', 'capacity', 'directions', 'amenities', 'updatedAt']);
+
+      allow delete: if isSignedIn() && isValidId(hallId) && existing().createdBy == request.auth.uid;
+    }
+
+    match /posts/{postId} {
+      allow get: if isSignedIn() && isValidId(postId) && (existing().visibility == 'campus' || existing().authorId == request.auth.uid);
+      allow list: if isSignedIn() && (existing().visibility == 'campus' || existing().authorId == request.auth.uid);
+
+      allow create: if isSignedIn() &&
+                       isValidId(postId) &&
+                       isValidPost(incoming()) &&
+                       incoming().authorId == request.auth.uid &&
+                       incoming().commentsCount == 0 &&
+                       incoming().keys().hasAll(['authorId', 'authorName', 'visibility', 'category', 'title', 'body', 'commentsCount', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['authorId', 'authorName', 'authorFaculty', 'visibility', 'category', 'subject', 'title', 'body', 'attachmentName', 'attachmentMimeType', 'attachmentSizeBytes', 'attachmentTextPreview', 'attachmentImageBase64', 'resourceUrl', 'commentsCount', 'createdAt', 'updatedAt']);
+
+      allow update: if isSignedIn() &&
+                       isValidId(postId) &&
+                       isValidPost(incoming()) &&
+                       incoming().authorId == existing().authorId &&
+                       incoming().visibility == existing().visibility &&
+                       incoming().createdAt == existing().createdAt && (
+                         // Action 1: Author edits post content/attachments
+                         (
+                           existing().authorId == request.auth.uid &&
+                           incoming().commentsCount == existing().commentsCount &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['title', 'body', 'category', 'subject', 'attachmentName', 'attachmentMimeType', 'attachmentSizeBytes', 'attachmentTextPreview', 'attachmentImageBase64', 'resourceUrl', 'updatedAt'])
+                         ) ||
+                         // Action 2: Increment commentsCount on reply
+                         (
+                           existing().visibility == 'campus' &&
+                           incoming().commentsCount == existing().commentsCount + 1 &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['commentsCount', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if isSignedIn() && isValidId(postId) && existing().authorId == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow get: if isSignedIn() && isValidId(postId) && isValidId(commentId) && (existing().visibility == 'campus' || existing().authorId == request.auth.uid);
+        allow list: if isSignedIn() && isValidId(postId) && (existing().visibility == 'campus' || existing().authorId == request.auth.uid);
+
+        allow create: if isSignedIn() &&
+                         isValidId(postId) &&
+                         isValidId(commentId) &&
+                         isValidComment(incoming()) &&
+                         incoming().authorId == request.auth.uid &&
+                         incoming().postId == postId &&
+                         incoming().keys().hasAll(['postId', 'authorId', 'authorName', 'visibility', 'body', 'createdAt']) &&
+                         incoming().keys().hasOnly(['postId', 'authorId', 'authorName', 'authorFaculty', 'visibility', 'body', 'createdAt']) &&
+                         exists(/databases/$(database)/documents/posts/$(postId));
+
+        allow update: if false;
+        allow delete: if isSignedIn() && isValidId(postId) && isValidId(commentId) && existing().authorId == request.auth.uid;
+      }
+    }
+
+    match /groups/{groupId} {
+      allow get: if isSignedIn() && isValidId(groupId) && (existing().visibility == 'public' || request.auth.uid in existing().memberIds);
+      allow list: if isSignedIn() && (existing().visibility == 'public' || request.auth.uid in existing().memberIds);
+
+      allow create: if isSignedIn() &&
+                       isValidId(groupId) &&
+                       isValidGroup(incoming()) &&
+                       incoming().createdBy == request.auth.uid &&
+                       incoming().memberIds.size() == 1 &&
+                       incoming().memberIds[0] == request.auth.uid &&
+                       incoming().memberCount == 1 &&
+                       incoming().keys().hasAll(['name', 'visibility', 'createdBy', 'creatorName', 'memberIds', 'memberCount', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['name', 'subject', 'faculty', 'description', 'meetingLocation', 'visibility', 'createdBy', 'creatorName', 'memberIds', 'memberCount', 'lastMessagePreview', 'createdAt', 'updatedAt']);
+
+      allow update: if isSignedIn() &&
+                       isValidId(groupId) &&
+                       isValidGroup(incoming()) &&
+                       incoming().createdBy == existing().createdBy &&
+                       incoming().creatorName == existing().creatorName &&
+                       incoming().createdAt == existing().createdAt && (
+                         // Action 1: Creator updates group metadata
+                         (
+                           existing().createdBy == request.auth.uid &&
+                           incoming().memberIds == existing().memberIds &&
+                           incoming().memberCount == existing().memberCount &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['name', 'subject', 'faculty', 'description', 'meetingLocation', 'visibility', 'updatedAt'])
+                         ) ||
+                         // Action 2: Student joins a public study group
+                         (
+                           existing().visibility == 'public' &&
+                           !(request.auth.uid in existing().memberIds) &&
+                           request.auth.uid in incoming().memberIds &&
+                           incoming().memberIds.hasAll(existing().memberIds) &&
+                           incoming().memberIds.size() == existing().memberIds.size() + 1 &&
+                           incoming().memberCount == incoming().memberIds.size() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['memberIds', 'memberCount', 'updatedAt'])
+                         ) ||
+                         // Action 3: Non-creator member leaves a study group
+                         (
+                           request.auth.uid in existing().memberIds &&
+                           request.auth.uid != existing().createdBy &&
+                           !(request.auth.uid in incoming().memberIds) &&
+                           existing().memberIds.hasAll(incoming().memberIds) &&
+                           incoming().memberIds.size() == existing().memberIds.size() - 1 &&
+                           incoming().memberCount == incoming().memberIds.size() &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['memberIds', 'memberCount', 'updatedAt'])
+                         ) ||
+                         // Action 4: Member updates lastMessagePreview when posting a message
+                         (
+                           request.auth.uid in existing().memberIds &&
+                           incoming().memberIds == existing().memberIds &&
+                           incoming().memberCount == existing().memberCount &&
+                           incoming().diff(existing()).affectedKeys().hasOnly(['lastMessagePreview', 'updatedAt'])
+                         )
+                       );
+
+      allow delete: if isSignedIn() && isValidId(groupId) && existing().createdBy == request.auth.uid;
+
+      match /messages/{messageId} {
+        allow get: if isSignedIn() && isValidId(groupId) && isValidId(messageId) && (existing().visibility == 'public' || request.auth.uid in existing().memberIds || existing().authorId == request.auth.uid);
+        allow list: if isSignedIn() && isValidId(groupId) && (existing().visibility == 'public' || request.auth.uid in existing().memberIds);
+
+        allow create: if isSignedIn() &&
+                         isValidId(groupId) &&
+                         isValidId(messageId) &&
+                         isValidGroupMessage(incoming()) &&
+                         incoming().authorId == request.auth.uid &&
+                         incoming().groupId == groupId &&
+                         incoming().keys().hasAll(['groupId', 'authorId', 'authorName', 'body', 'visibility', 'memberIds', 'createdAt']) &&
+                         incoming().keys().hasOnly(['groupId', 'authorId', 'authorName', 'body', 'visibility', 'memberIds', 'attachmentName', 'attachmentMimeType', 'attachmentImageBase64', 'resourceUrl', 'createdAt']) &&
+                         exists(/databases/$(database)/documents/groups/$(groupId)) &&
+                         request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds &&
+                         incoming().visibility == get(/databases/$(database)/documents/groups/$(groupId)).data.visibility &&
+                         incoming().memberIds == get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+
+        allow update: if false;
+        allow delete: if isSignedIn() && isValidId(groupId) && isValidId(messageId) && existing().authorId == request.auth.uid;
+      }
+    }
+  }
+}

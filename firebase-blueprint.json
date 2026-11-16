@@ -1,0 +1,446 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private authenticated BStU student profile containing user preferences and PII.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the student."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Student display name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Student email address (PII, owner-only read)."
+        },
+        "faculty": {
+          "type": "string",
+          "description": "BStU faculty name."
+        },
+        "academicGroup": {
+          "type": "string",
+          "description": "Academic group code."
+        },
+        "studyYear": {
+          "type": "integer",
+          "description": "Current year of study (1-6)."
+        },
+        "bio": {
+          "type": "string",
+          "description": "Short student bio."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Optional avatar URL."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when profile was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when profile was last updated (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": ["uid", "displayName", "faculty", "academicGroup", "studyYear", "createdAt", "updatedAt"]
+    },
+    "ClassScheduleItem": {
+      "title": "ClassScheduleItem",
+      "description": "A student's scheduled class session linked to a BStU building and lecture hall.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "courseName": {
+          "type": "string",
+          "description": "Course or subject title."
+        },
+        "courseCode": {
+          "type": "string",
+          "description": "Optional course code."
+        },
+        "instructor": {
+          "type": "string",
+          "description": "Instructor or lecturer name."
+        },
+        "building": {
+          "type": "string",
+          "description": "BStU campus building name."
+        },
+        "roomNumber": {
+          "type": "string",
+          "description": "Lecture hall or room number."
+        },
+        "hallId": {
+          "type": "string",
+          "description": "Optional reference ID to lectureHalls directory."
+        },
+        "dayOfWeek": {
+          "type": "integer",
+          "description": "Day of week (1=Monday to 7=Sunday)."
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Start time in HH:mm format."
+        },
+        "endTime": {
+          "type": "string",
+          "description": "End time in HH:mm format."
+        },
+        "classType": {
+          "type": "string",
+          "enum": ["Lecture", "Seminar", "Lab", "Tutorial"],
+          "description": "Class session format."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes for this class."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["userId", "courseName", "building", "roomNumber", "dayOfWeek", "startTime", "endTime", "classType", "createdAt", "updatedAt"]
+    },
+    "LectureHall": {
+      "title": "LectureHall",
+      "description": "BStU campus lecture hall or room entry contributed to the shared campus finder.",
+      "type": "object",
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "description": "Creator Firebase Auth UID."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["campus"],
+          "description": "Campus visibility scope."
+        },
+        "name": {
+          "type": "string",
+          "description": "Lecture hall display name."
+        },
+        "building": {
+          "type": "string",
+          "description": "Campus building name."
+        },
+        "floor": {
+          "type": "string",
+          "description": "Floor or wing location."
+        },
+        "roomNumber": {
+          "type": "string",
+          "description": "Room number or code."
+        },
+        "faculty": {
+          "type": "string",
+          "description": "Primary faculty or department."
+        },
+        "capacity": {
+          "type": "integer",
+          "description": "Seating capacity."
+        },
+        "directions": {
+          "type": "string",
+          "description": "Walking directions inside campus."
+        },
+        "amenities": {
+          "type": "array",
+          "description": "Bounded list of room amenities."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["createdBy", "visibility", "name", "building", "floor", "roomNumber", "capacity", "createdAt", "updatedAt"]
+    },
+    "CampusPost": {
+      "title": "CampusPost",
+      "description": "Student thought, study material, file summary, or question shared on BStUsphere.",
+      "type": "object",
+      "properties": {
+        "authorId": {
+          "type": "string",
+          "description": "Author Firebase Auth UID."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Author display name."
+        },
+        "authorFaculty": {
+          "type": "string",
+          "description": "Author faculty."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["campus"],
+          "description": "Campus-wide visibility."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["thought", "material", "question", "announcement"],
+          "description": "Post category."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Related course or subject."
+        },
+        "title": {
+          "type": "string",
+          "description": "Post headline."
+        },
+        "body": {
+          "type": "string",
+          "description": "Post body or study notes."
+        },
+        "attachmentName": {
+          "type": "string",
+          "description": "Attached file or photo display name."
+        },
+        "attachmentMimeType": {
+          "type": "string",
+          "description": "MIME type of attached file."
+        },
+        "attachmentSizeBytes": {
+          "type": "integer",
+          "description": "Size of attached file in bytes."
+        },
+        "attachmentTextPreview": {
+          "type": "string",
+          "description": "Text excerpt extracted from attached text/notes document."
+        },
+        "attachmentImageBase64": {
+          "type": "string",
+          "description": "Compressed JPEG thumbnail Base64 string for shared whiteboard/note photos."
+        },
+        "resourceUrl": {
+          "type": "string",
+          "description": "Optional external study link."
+        },
+        "commentsCount": {
+          "type": "integer",
+          "description": "Total number of replies."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["authorId", "authorName", "visibility", "category", "title", "body", "commentsCount", "createdAt", "updatedAt"]
+    },
+    "PostComment": {
+      "title": "PostComment",
+      "description": "Reply or comment on a shared thought or study material.",
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "string",
+          "description": "Parent post document ID."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Author Firebase Auth UID."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Author display name."
+        },
+        "authorFaculty": {
+          "type": "string",
+          "description": "Author faculty."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["campus"],
+          "description": "Matches parent post campus visibility."
+        },
+        "body": {
+          "type": "string",
+          "description": "Comment text."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        }
+      },
+      "required": ["postId", "authorId", "authorName", "visibility", "body", "createdAt"]
+    },
+    "StudyGroup": {
+      "title": "StudyGroup",
+      "description": "BStU student study group or course community.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Study group name."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Course or focus area."
+        },
+        "faculty": {
+          "type": "string",
+          "description": "Faculty name."
+        },
+        "description": {
+          "type": "string",
+          "description": "Group purpose and description."
+        },
+        "meetingLocation": {
+          "type": "string",
+          "description": "Optional BStU lecture hall or library meetup spot."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Whether any BStU student can discover and join."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Group creator UID."
+        },
+        "creatorName": {
+          "type": "string",
+          "description": "Group creator display name."
+        },
+        "memberIds": {
+          "type": "array",
+          "description": "Bounded list (max 50) of member UIDs."
+        },
+        "memberCount": {
+          "type": "integer",
+          "description": "Number of group members."
+        },
+        "lastMessagePreview": {
+          "type": "string",
+          "description": "Preview of the most recent message."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": ["name", "visibility", "createdBy", "creatorName", "memberIds", "memberCount", "createdAt", "updatedAt"]
+    },
+    "GroupMessage": {
+      "title": "GroupMessage",
+      "description": "Chat message or shared study material inside a student study group.",
+      "type": "object",
+      "properties": {
+        "groupId": {
+          "type": "string",
+          "description": "Parent group document ID."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Sender Firebase Auth UID."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Sender display name."
+        },
+        "body": {
+          "type": "string",
+          "description": "Message text."
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public", "private"],
+          "description": "Denormalized visibility matching parent study group."
+        },
+        "memberIds": {
+          "type": "array",
+          "description": "Denormalized bounded member UIDs from parent study group."
+        },
+        "attachmentName": {
+          "type": "string",
+          "description": "Optional attached file or photo name."
+        },
+        "attachmentMimeType": {
+          "type": "string",
+          "description": "Optional attachment MIME type."
+        },
+        "attachmentImageBase64": {
+          "type": "string",
+          "description": "Optional compressed JPEG thumbnail Base64 string."
+        },
+        "resourceUrl": {
+          "type": "string",
+          "description": "Optional external study link."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of creation."
+        }
+      },
+      "required": ["groupId", "authorId", "authorName", "body", "visibility", "memberIds", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private student profile documents isolated per authenticated owner."
+    },
+    "/users/{userId}/schedules/{scheduleId}": {
+      "schema": { "$ref": "#/entities/ClassScheduleItem" },
+      "description": "Student's personal class schedule entries."
+    },
+    "/lectureHalls/{hallId}": {
+      "schema": { "$ref": "#/entities/LectureHall" },
+      "description": "Shared BStU campus lecture hall directory entries."
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/CampusPost" },
+      "description": "BStU student thoughts, study materials, and questions."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/PostComment" },
+      "description": "Discussion replies on campus posts."
+    },
+    "/groups/{groupId}": {
+      "schema": { "$ref": "#/entities/StudyGroup" },
+      "description": "BStU student study groups."
+    },
+    "/groups/{groupId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/GroupMessage" },
+      "description": "Messages and shared materials within a study group."
+    }
+  }
+}
